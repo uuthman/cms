@@ -2,23 +2,23 @@
 /**
  * Created by PhpStorm.
  * User: AYINDE
- * Date: 22/08/2019
- * Time: 18:02
+ * Date: 15/09/2019
+ * Time: 07:48
  */
-
 ?>
+
 @extends('layouts.app')
 
 @section('content')
     <div class="d-flex justify-content-end mb-2">
-        <a href="{{route('categories.create')}}" class="btn btn-success">Add category</a>
+        <a href="{{route('tags.create')}}" class="btn btn-success">Add Tag</a>
     </div>
     <div class="card card-default">
         <div class="card-header">
-            Categories
+            Tags
         </div>
         <div class="card-body">
-            @if($categories->count() > 0)
+            @if($tags->count() > 0)
                 <table class="table">
                     <thead>
                     <tr>
@@ -30,41 +30,41 @@
                     </tr>
                     </thead>
                     <tbody>
-                    @foreach($categories as $category)
+                    @foreach($tags as $tag)
                         <tr>
                             <td>
-                                {{ $category->name }}
+                                {{ $tag->name }}
                             </td>
                             <td>
-                                {{ $category->posts->count() }}
+                               {{$tag->posts->count()}}
                             </td>
                             <td>
-                                <a href="{{ route('categories.edit',$category->id) }}" class="btn btn-info btn-sm">Edit</a>
-                                <button class="btn btn-danger btn-sm" onclick="handleDelete({{$category->id}})">Delete</button>
+                                <a href="{{ route('tags.edit',$tag->id) }}" class="btn btn-info btn-sm">Edit</a>
+                                <button class="btn btn-danger btn-sm" onclick="handleDelete({{$tag->id}})">Delete</button>
                             </td>
                         </tr>
                     @endforeach
                     </tbody>
                 </table>
-                @else
-                <h3 class="text-center">No Categories Yet</h3>
-                @endif
+            @else
+                <h3 class="text-center">No Tags Yet</h3>
+            @endif
 
         </div>
     </div>
 
-    <div class="modal animated bounceIn" id="deleteCategory" tabindex="-1" role="dialog">
+    <div class="modal animated bounceIn" id="deleteTag" tabindex="-1" role="dialog">
         <div class="modal-dialog" role="document">
             <form action="" method="post" id="deleteForm">
                 @csrf
                 @method('DELETE')
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h6 class="title" id="defaultModalLabel">Delete Category</h6>
+                        <h6 class="title" id="defaultModalLabel">Delete Tag</h6>
                     </div>
                     <div class="modal-body">
                         <p class="text-center text-bold">
-                            Are you sure you want to delete category ?
+                            Are you sure you want to delete tag ?
                         </p>
                     </div>
                     <div class="modal-footer">
@@ -79,14 +79,14 @@
             </form>
         </div>
     </div>
-    @endsection
+@endsection
 @section('script')
     <script>
         function handleDelete(id)
         {
-            $('#deleteCategory').modal('show');
+            $('#deleteTag').modal('show');
             var form = document.getElementById('deleteForm');
-            form.action = 'categories/' + id;
+            form.action = 'tags/' + id;
         }
     </script>
-    @endsection
+@endsection

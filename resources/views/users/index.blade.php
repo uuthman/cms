@@ -2,54 +2,58 @@
 /**
  * Created by PhpStorm.
  * User: AYINDE
- * Date: 22/08/2019
- * Time: 18:02
+ * Date: 15/09/2019
+ * Time: 14:12
  */
-
 ?>
+
 @extends('layouts.app')
 
 @section('content')
-    <div class="d-flex justify-content-end mb-2">
-        <a href="{{route('categories.create')}}" class="btn btn-success">Add category</a>
-    </div>
     <div class="card card-default">
         <div class="card-header">
-            Categories
+            Users
         </div>
         <div class="card-body">
-            @if($categories->count() > 0)
+            @if($users->count() > 0)
                 <table class="table">
                     <thead>
                     <tr>
                         <th>
+                            Image
+                        </th>
+                        <th>
                             Name
                         </th>
-                        <th>Post count</th>
+                        <th>Email</th>
                         <th></th>
                     </tr>
                     </thead>
                     <tbody>
-                    @foreach($categories as $category)
+                    @foreach($users as $user)
                         <tr>
                             <td>
-                                {{ $category->name }}
+                                <img src="{{ Gravatar::src($user->email) }}" alt="" width="40px" height="40px" style="border-radius: 50%;">
                             </td>
                             <td>
-                                {{ $category->posts->count() }}
+                                {{$user->name}}
                             </td>
+                           <td>{{ $user->email }}</td>
                             <td>
-                                <a href="{{ route('categories.edit',$category->id) }}" class="btn btn-info btn-sm">Edit</a>
-                                <button class="btn btn-danger btn-sm" onclick="handleDelete({{$category->id}})">Delete</button>
+                                @if(!$user->isAdmin())
+                                    <form action="{{ Route('users.make-admin',$user->id) }}" method="post">
+                                        @csrf
+                                        <button type="submit" class="btn btn-success btn-sm">Make Admin</button>
+                                    </form>
+                                    @endif
                             </td>
                         </tr>
                     @endforeach
                     </tbody>
                 </table>
-                @else
-                <h3 class="text-center">No Categories Yet</h3>
-                @endif
-
+            @else
+                <h3 class="text-center">No Users Yet</h3>
+            @endif
         </div>
     </div>
 
@@ -79,14 +83,5 @@
             </form>
         </div>
     </div>
-    @endsection
-@section('script')
-    <script>
-        function handleDelete(id)
-        {
-            $('#deleteCategory').modal('show');
-            var form = document.getElementById('deleteForm');
-            form.action = 'categories/' + id;
-        }
-    </script>
-    @endsection
+@endsection
+

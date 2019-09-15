@@ -15,17 +15,7 @@
             {{isset($post) ? 'Update Post' : 'Create Post'}}
         </div>
         <div class="card-body">
-            @if($errors->any())
-                <div class="alert alert-danger">
-                    <ul class="list-group">
-                        @foreach($errors->all() as $error)
-                            <li class="list-group-item text-danger">
-                                {{$error}}
-                            </li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
+            @include('partials.error')
             <form action="{{isset($post) ? route('posts.update',$post->id) : route('posts.store')}}" method="post" enctype="multipart/form-data">
                 @csrf
                 @if(isset($post))
@@ -54,6 +44,39 @@
                     <input type="file" name="image" id="image" class="form-control">
                 </div>
                 <div class="form-group">
+                    <label for="category">Category</label>
+                    <select name="category_id" id="category" class="form-control">
+                        @foreach($categories as $category)
+                            <option value="{{ $category->id }}"
+                                    @if(isset($post))
+                                        @if($category->id == $post->category_id)
+                                            selected
+                                            @endif
+                                        @endif
+                            >
+                                {{ $category->name }}
+                            </option>
+                            @endforeach
+
+                    </select>
+                </div>
+                @if($tags->count() > 0)
+                    <div class="form-group">
+                        <label for="tags">Tag</label>
+                        <select name="tags[]" id="tags" class="form-control tag-selector" multiple>
+                            @foreach($tags as $tag)
+                                <option value="{{ $tag->id }}"
+                                @if(isset($post))
+                                    @if($post->hasTags($tag->id))
+                                        selected
+                                        @endif
+                                    @endif
+                                >{{ $tag->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    @endif
+                <div class="form-group">
                     <button class="btn btn-success">{{ isset($post) ? 'Update Post' : 'Add Post' }}</button>
                 </div>
             </form>
@@ -64,9 +87,14 @@
 @section('script')
     <script src="https://cdnjs.cloudflare.com/ajax/libs/trix/1.2.0/trix.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.10/js/select2.min.js"></script>
     <script>
         flatpickr('#published_at',{
             enableTime:true
+        });
+
+        $(document).ready(function() {
+            $('.tag-selector').select2();
         });
     </script>
     @endsection
@@ -74,4 +102,5 @@
 @section('css')
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/trix/1.2.0/trix.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.10/css/select2.min.css" rel="stylesheet" />
     @endsection

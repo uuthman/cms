@@ -2,13 +2,21 @@
 
 namespace App\Http\Controllers;
 
+use App\Category;
 use App\Http\Requests\Posts\CreatePostRequest;
 use App\Http\Requests\Posts\UpdatePostRequest;
 use App\Post;
+use App\Tag;
 
 
 class PostsController extends Controller
 {
+
+    public function __construct()
+    {
+        $this->middleware('verifyCategoryCount')->only(['create','store']);
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -26,7 +34,7 @@ class PostsController extends Controller
      */
     public function create()
     {
-        return view('posts.create');
+        return view('posts.create')->with('categories',Category::all())->with('tags',Tag::all());
     }
 
     /**
@@ -39,15 +47,20 @@ class PostsController extends Controller
     {
         $image = $request->image->store('posts');
 
-        Post::create(
+        $post = Post::create(
             [
                 'title' => $request->title,
                 'description' => $request->description,
                 'content' => $request->content,
                 'image' => $image,
-                'published_at' => $request->published_at
+                'published_at' => $request->published_at,
+                'category_id' => $request->category_id
             ]
         );
+
+        if ($request->tags){
+            $post->tags()->attach($request->tags);
+        }
 
         session()->flash('success','Post Created Successfully');
         return redirect(route('posts.index'));
@@ -72,26 +85,31 @@ class PostsController extends Controller
      */
     public function edit(Post $post)
     {
-        return view('posts.create')->with('post',$post);
+        return view('posts.create')->with('post',$post)->with('categories',Category::all())->with('tags',Tag::all());
     }
 
     /**
      * Update the specified resource in storage.
      *
      * @param UpdatePostRequest $request
-     * @param  int $id
+     * @param Post $post
      * @return void
      */
     public function update(UpdatePostRequest $request, Post $post)
     {
-        //check if new image is uploaded
-        $data = $request->only(['title','description','published_at','content']);
 
+        $data = $request->only(['title','description','published_at','content','category_id']);
+
+        //check if new image is uploaded
         if ($request->hasFile('image')){
             $image = $request->image->store('posts');
             //delete old image
             $post->deleteImage();
             $data['image'] = $image;
+        }
+
+        if ($request->tags){
+            $post->tags()->sync($request->tags);
         }
 
         //update attribute
